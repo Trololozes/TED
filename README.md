@@ -1,4 +1,10 @@
-#Trabalho Escrito
+#Todo
+[] Definir versão Qt
+[] Criar projeto base
+[] Planejar features
+[] Parar de enrolar e começar a bombar código na parada
+
+###Trabalho Escrito
 1. Contextualização
 2. Problema
 3. Problematização
@@ -9,7 +15,7 @@
 6. Revisão da Literatura
 7. Metodologia e Cronograma
  - Cronograma de atividades (Opcional)
- - Colocar Considerações Finais aqui 
+ - Colocar Considerações Finais aqui
 8. Referências
 
 ###Normas Técnicas
