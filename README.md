@@ -1,8 +1,8 @@
 #Todo
-[] Definir versão Qt
-[] Criar projeto base
-[] Planejar features
-[] Parar de enrolar e começar a bombar código na parada
+- [] Definir versão Qt
+- [] Criar projeto base
+- [] Planejar features
+- [] Parar de enrolar e começar a bombar código na parada
 
 ###Trabalho Escrito
 1. Contextualização
