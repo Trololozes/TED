@@ -5,6 +5,10 @@
 - [ ] Criar projeto base
 - [ ] Planejar features
 - [ ] Parar de enrolar e começar a bombar código na parada
+- [ ] Arrumar estruturação do projeto
+- [ ] Remover arquivos desnecessarios
+
+###### Repositório apenas para o código do ted, nada mais!
 
 ###Trabalho Escrito
 1. Contextualização
