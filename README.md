@@ -10,5 +10,5 @@
 - [x] Criar branch develop (master deve ser sempre compilável e executável)
 - [ ] Criar lista de funcionalidades básicas
 - [ ] NÃO começar o desenvolvimento de features adicionais antes de TODAS as features básicas estarem funcionais
-
+- [x] Adicionar License (LGPL Obrigatória -> Qt Open Source)
 ###### Repositório apenas para o código do ted, nada mais!
