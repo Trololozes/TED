@@ -7,7 +7,9 @@
 - [ ] Parar de enrolar e começar a bombar código na parada
 - [ ] Arrumar estruturação do projeto
 - [ ] Remover arquivos desnecessarios
-
+- [ ] Criar branch develop (master deve ser sempre compilável e executável)
+- [ ] Criar lista de funcionalidades básicas
+- [ ] NÃO começar o desenvolvimento de features adicionais antes de TODAS as features básicas estarem funcionais
 ###### Repositório apenas para o código do ted, nada mais!
 
 ###Trabalho Escrito
