@@ -1,4 +1,6 @@
-#Todo
+# TED - Text EDitor
+
+##Todo
 - [ ] Definir versão Qt
 - [ ] Criar projeto base
 - [ ] Planejar features
