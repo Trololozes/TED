@@ -16,6 +16,8 @@
 
 ##Instruções de Compilação
 
+####MinGW
+
 Para compilar certifique-se de ter:
 - Qt 5.5
 - GNU make
