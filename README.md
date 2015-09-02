@@ -11,7 +11,7 @@
 - [ ] Criar lista de funcionalidades básicas
 - [ ] NÃO começar o desenvolvimento de features adicionais antes de TODAS as features básicas estarem funcionais
 - [x] Adicionar License (LGPL Obrigatória -> Qt Open Source)
-- [ ] Adicionar instruções de compilação nas plataformas alvo (win, linux, mac(?))
+- [x] Adicionar instruções de compilação nas plataformas alvo (win, linux, mac(?))
 
 
 ##Instruções de Compilação
