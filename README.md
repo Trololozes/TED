@@ -21,37 +21,20 @@
 Para compilar certifique-se de ter:
 - Qt 5.5
 - GNU make
+- GCC (g++)
 
-1. Deve-se criar um arquivo .pro com as configurações do projeto (será feito enquanto é desenvolvido), exempplo de arquivo .pro:
-
+1. Deve-se criar um arquivo .pro com as configurações do projeto com o comando:
 ```
-QT += widgets
-qtHaveModule(printsupport): QT += printsupport
-
-TEMPLATE        = app
-TARGET          = textedit
-
-HEADERS         = textedit.h
-SOURCES         = textedit.cpp \
-                  main.cpp
-
-RESOURCES += textedit.qrc
-build_all:!build_pass {
-    CONFIG -= build_all
-    CONFIG += release
-}
-
-EXAMPLE_FILES = textedit.qdoc
-
-# install
-target.path = $$[QT_INSTALL_EXAMPLES]/widgets/richtext/textedit
-INSTALLS += target
+qmake -project
 ```
+Configurações adicionais podem ou não ser necessárias
 
-Na linha de comando digite:
+2. Na linha de comando digite ``` qmake <nome_do_arquivo.pro> ``` para criar o makefile para a plataforma
+
+3. Para compilar o programa é simples:
 ```
-qmake <nome_do_arquivo.pro>
 make
 ```
+
 
 ###### Repositório apenas para o código do ted, nada mais!
