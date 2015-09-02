@@ -23,11 +23,7 @@ Para compilar certifique-se de ter:
 - GNU make
 - GCC (g++)
 
-1. Deve-se criar um arquivo .pro com as configurações do projeto com o comando:
-```
-qmake -project
-```
-Configurações adicionais podem ou não ser necessárias
+1. Deve-se criar um arquivo .pro com as configurações do projeto com o comando ``` qmake -project ```
 
 2. Na linha de comando digite ``` qmake <nome_do_arquivo.pro> ``` para criar o makefile para a plataforma
 
