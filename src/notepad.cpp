@@ -3,6 +3,7 @@
 #include <QMenuBar>
 #include <QWidget>
 #include <QLayout>
+#include <QShortcut>
 
 class QMenu;
 #include "notepad.h"
@@ -39,22 +40,42 @@ void TextEditor::contextMenuEvent(QContextMenuEvent *event)
 
 void TextEditor::newFile()
 {
-    infoLabel->setText(tr("Invoked <b>File|New</b>"));
+    if (maybeSave()) {
+        textEdit->clear();
+        setCurrentFile("");
+    }
 }
 
 void TextEditor::open()
 {
-    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+    if (maybeSave()) {
+        QString fileName = QFileDialog::getOpenFileName(this);
+        if (!fileName.isEmpty())
+            loadFile(fileName);
+    }
 }
 
 bool TextEditor::save()
 {
-    infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+    if (curFile.isEmpty()) {
+        return saveAs();
+    } else {
+        return saveFile(curFile);
+    }
 }
 
-bool TextEditor::fileSaveAs()
+bool TextEditor::saveAs()
 {
-   infoLabel->setText(tr("Invoked <b>File|Save As</b>"));
+    QFileDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    QStringList files;
+    if (dialog.exec())
+        files = dialog.selectedFiles();
+    else
+        return false;
+
+    return saveFile(files.at(0));
 }
 
 void TextEditor::undo()
@@ -84,93 +105,167 @@ void TextEditor::paste()
 
 void TextEditor::about()
 {
-    infoLabel->setText(tr("Invoked <b>Help|About</b>"));
     QMessageBox::about(this, tr("About"),
-            tr("TED Text Editor v0.0.1."));
+            tr("TEDitor v0.0.1 \n"
+               "desenvolvido por Trololozes."));
 }
+
+bool TextEditor::maybeSave()
+{
+    if (textEdit->document()->isModified()) {
+        QMessageBox::StandardButton ret;
+        ret = QMessageBox::warning(this, tr("TEDitor"),
+                     tr("O documento foi modificado.\n"
+                        "Deseja salvar suas alterações?"),
+                     QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        if (ret == QMessageBox::Save)
+            return save();
+        else if (ret == QMessageBox::Cancel)
+            return false;
+    }
+    return true;
+}
+
+void TextEditor::setCurrentFile(const QString &fileName)
+{
+    curFile = fileName;
+    textEdit->document()->setModified(false);
+    setWindowModified(false);
+
+    QString shownName = curFile;
+    if (curFile.isEmpty())
+        shownName = "untitled.txt";
+    setWindowFilePath(shownName);
+}
+
+void TextEditor::loadFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("TEDitor"),
+                             tr("O TED encontrou problemas para ler o arquivo %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    QTextStream in(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    textEdit->setPlainText(in.readAll());
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    setCurrentFile(fileName);
+}
+
+bool TextEditor::saveFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("TEDitor"),
+                             tr("O TED encontrou problemas para salvar o arquivo %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    QTextStream out(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    out << textEdit->toPlainText();
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    setCurrentFile(fileName);
+    return true;
+}
+
+void TextEditor::documentWasModified()
+{
+    setWindowModified(textEdit->document()->isModified());
+}
+
 
 void TextEditor::createActions()
 {
-    newAct = new QAction(tr("&New"), this);
+    //QKeySequence SaveAs não funciona no windows, criando manualmente
+    QShortcut *shortcutSaveAs = new QShortcut(QKeySequence(tr("Ctrl+Shift+S")), textEdit);
+
+    newAct = new QAction(tr("&Novo"), this);
     newAct->setShortcuts(QKeySequence::New);
-    newAct->setStatusTip(tr("Create a new file"));
+    newAct->setStatusTip(tr("Cria um novo arquivo"));
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
-    openAct = new QAction(tr("&Open..."), this);
+    openAct = new QAction(tr("&Abrir..."), this);
     openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
+    openAct->setStatusTip(tr("Abre um arquivo existente"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    saveAct = new QAction(tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
+
+
+    saveAct = new QAction(tr("&Salvar"), this);
+    saveAct->setShortcuts(QKeySequence::Save); // why no work?!
+    saveAct->setStatusTip(tr("Salva o documento para o disco"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-    exitAct = new QAction(tr("E&xit"), this);
+    saveAsAct = new QAction(tr("&Salvar como"), this);
+    saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    saveAsAct->setStatusTip(tr("Salva o documento para o disco"));
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
+    //Linkando o atalho
+    connect(shortcutSaveAs, SIGNAL(activated()), this, SLOT(saveAs()));
+
+    exitAct = new QAction(tr("&Sair"), this);
     exitAct->setShortcuts(QKeySequence::Quit);
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
-    undoAct = new QAction(tr("&Undo"), this);
+    undoAct = new QAction(tr("&Desfazer"), this);
     undoAct->setShortcuts(QKeySequence::Undo);
     undoAct->setStatusTip(tr("Undo the last operation"));
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
 
-    redoAct = new QAction(tr("&Redo"), this);
+    redoAct = new QAction(tr("&Refazer"), this);
     redoAct->setShortcuts(QKeySequence::Redo);
     redoAct->setStatusTip(tr("Redo the last operation"));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
-    cutAct = new QAction(tr("Cu&t"), this);
+    cutAct = new QAction(tr("&Cortar"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-                            "clipboard"));
+    cutAct->setStatusTip(tr("Cortar seleção"));
     connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
 
-    copyAct = new QAction(tr("&Copy"), this);
+    copyAct = new QAction(tr("&Copiar"), this);
     copyAct->setShortcuts(QKeySequence::Copy);
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-                             "clipboard"));
+    copyAct->setStatusTip(tr("Copiar seleção"));
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
 
-    pasteAct = new QAction(tr("&Paste"), this);
+    pasteAct = new QAction(tr("&Colar"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
+    pasteAct->setStatusTip(tr("Colar seleção"));
     connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
 
-    aboutAct = new QAction(tr("&About"), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
+    aboutAct = new QAction(tr("&Sobre"), this);
+    aboutAct->setStatusTip(tr("Sobre a aplicação"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 }
 
 void TextEditor::createMenus()
 {
-    QMenu *menu;
-    QAction *savesss;
-
-
-
-    savesss = new QAction(tr("&Save As"), this);
-    savesss->setShortcuts(QKeySequence::SaveAs);
-    savesss->setStatusTip(tr("Save the document to disk"));
-    connect(savesss, SIGNAL(triggered()), this, SLOT(save()));
-
-
-
-   menu = menuBar()->addMenu( tr("&Test") );
-   menu->addAction( savesss );
-   menu->addSeparator();
-
-
-    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu = menuBar()->addMenu(tr("&Arquivo"));
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
+    fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
-    editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu = menuBar()->addMenu(tr("&Editar"));
     editMenu->addAction(undoAct);
     editMenu->addAction(redoAct);
     editMenu->addSeparator();
@@ -179,6 +274,6 @@ void TextEditor::createMenus()
     editMenu->addAction(pasteAct);
     editMenu->addSeparator();
 
-    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu = menuBar()->addMenu(tr("&Ajuda"));
     helpMenu->addAction(aboutAct);
 }

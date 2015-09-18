@@ -27,14 +27,24 @@ private slots:
     void cut();
     void copy();
     bool save();
-    bool fileSaveAs();
+    bool saveAs();
     void paste();
     void about();
+    void documentWasModified();
+
 
 private:
     QPlainTextEdit *textEdit;
+
+    QString curFile;
+    QString fileName;
+
     void createActions();
     void createMenus();
+    bool maybeSave();
+    void setCurrentFile(const QString &fileName);
+    void loadFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
 
     QMenu *fileMenu;
     QMenu *editMenu;
@@ -44,6 +54,7 @@ private:
     QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
+    QAction *saveAsAct;
     QAction *printAct;
     QAction *exitAct;
     QAction *undoAct;
@@ -63,7 +74,6 @@ private:
     QAction *aboutQtAct;
     QLabel *infoLabel;
 
-    QString fileName;
 };
 
 #endif // NOTEPAD_H
