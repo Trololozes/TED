@@ -5,8 +5,9 @@
 #include <QLayout>
 #include <QShortcut>
 
-class QMenu;
 #include "notepad.h"
+
+class QMenu;
 
 TextEditor::TextEditor( QWidget *parent ) : QMainWindow( parent )
 {
