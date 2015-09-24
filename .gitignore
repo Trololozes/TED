@@ -3,5 +3,7 @@ moc_*.cpp
 bin/
 release/
 debug/
-Makefile.Debug
-Makefile.Release
+Makefile*
+
+.vimrc
+*.swp
