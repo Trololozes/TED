@@ -1,5 +1,4 @@
-*.o
-moc_*.cpp
+obj/
 bin/
 release/
 debug/
