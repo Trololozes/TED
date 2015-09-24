@@ -6,8 +6,9 @@ QT += widgets
 
 TEMPLATE = app
 TARGET = bin/TED
-INCLUDEPATH += .
+INCLUDEPATH += ./include
 
 # Input
+VPATH += ./src ./include
 HEADERS += notepad.h
 SOURCES += main.cpp notepad.cpp
