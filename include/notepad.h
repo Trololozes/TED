@@ -15,6 +15,7 @@ class TextEditor : public QMainWindow
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) Q_DECL_OVERRIDE;
+    void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 public:
     TextEditor(QWidget *parent = 0);
@@ -39,12 +40,15 @@ private:
     QString curFile;
     QString fileName;
 
+    void createStatusBar();
     void createActions();
     void createMenus();
     bool maybeSave();
     void setCurrentFile(const QString &fileName);
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
+    void readSettings();
+    void writeSettings();
 
     QMenu *fileMenu;
     QMenu *editMenu;

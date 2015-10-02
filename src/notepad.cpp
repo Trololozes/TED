@@ -24,9 +24,16 @@ TextEditor::TextEditor( QWidget *parent ) : QMainWindow( parent )
 
     createActions();
     createMenus();
+    createStatusBar();
+
+    readSettings();
+
+    connect(textEdit->document(), SIGNAL(contentsChanged()),
+            this, SLOT(documentWasModified()));
+
+    setCurrentFile("");
 
     layout->setMargin(0);
-
 
 }
 
@@ -37,6 +44,37 @@ void TextEditor::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(copyAct);
     menu.addAction(pasteAct);
     menu.exec(event->globalPos());
+}
+
+void TextEditor::closeEvent(QCloseEvent *event)
+{
+    if (maybeSave()) {
+        writeSettings();
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+void TextEditor::createStatusBar()
+{
+    statusBar()->showMessage(tr("Ready"));
+}
+
+void TextEditor::readSettings()
+{
+    QSettings settings("QtProject", "Application Example");
+    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
+    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    resize(size);
+    move(pos);
+}
+
+void TextEditor::writeSettings()
+{
+    QSettings settings("QtProject", "Application Example");
+    settings.setValue("pos", pos());
+    settings.setValue("size", size());
 }
 
 void TextEditor::newFile()
@@ -208,7 +246,6 @@ void TextEditor::createActions()
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
 
-
     saveAct = new QAction(tr("&Salvar"), this);
     saveAct->setShortcuts(QKeySequence::Save); // why no work?!
     saveAct->setStatusTip(tr("Salva o documento para o disco"));
@@ -223,28 +260,35 @@ void TextEditor::createActions()
 
     exitAct = new QAction(tr("&Sair"), this);
     exitAct->setShortcuts(QKeySequence::Quit);
-    exitAct->setStatusTip(tr("Exit the application"));
+    exitAct->setStatusTip(tr("Sair do programa"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     undoAct = new QAction(tr("&Desfazer"), this);
     undoAct->setShortcuts(QKeySequence::Undo);
-    undoAct->setStatusTip(tr("Undo the last operation"));
+    undoAct->setStatusTip(tr("Desfazer a última operação"));
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
 
     redoAct = new QAction(tr("&Refazer"), this);
     redoAct->setShortcuts(QKeySequence::Redo);
-    redoAct->setStatusTip(tr("Redo the last operation"));
+    redoAct->setStatusTip(tr("Refazer a última operação"));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     cutAct = new QAction(tr("&Cortar"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cortar seleção"));
     connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
+    cutAct->setEnabled(false);
+    connect(textEdit, SIGNAL(copyAvailable(bool)),
+            cutAct, SLOT(setEnabled(bool)));
+
 
     copyAct = new QAction(tr("&Copiar"), this);
     copyAct->setShortcuts(QKeySequence::Copy);
     copyAct->setStatusTip(tr("Copiar seleção"));
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
+    copyAct->setEnabled(false);
+    connect(textEdit, SIGNAL(copyAvailable(bool)),
+            copyAct, SLOT(setEnabled(bool)));
 
     pasteAct = new QAction(tr("&Colar"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
@@ -254,6 +298,8 @@ void TextEditor::createActions()
     aboutAct = new QAction(tr("&Sobre"), this);
     aboutAct->setStatusTip(tr("Sobre a aplicação"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+
+
 }
 
 void TextEditor::createMenus()
