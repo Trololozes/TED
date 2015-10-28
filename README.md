@@ -2,7 +2,7 @@
 
 ##Todo
 - [x] Qt 5.5, lançado em 01/07
-- [ ] Criar projeto base
+- [x] Criar projeto base
 - [ ] Planejar features
 - [ ] Parar de enrolar e começar a bombar código na parada
 - [ ] Arrumar estruturação do projeto
