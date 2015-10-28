@@ -1,4 +1,4 @@
-
+﻿
 #include <QtWidgets>
 #include <QMenuBar>
 #include <QWidget>
@@ -292,7 +292,7 @@ void TextEditor::createActions()
 
     pasteAct = new QAction(tr("&Colar"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Colar seleção"));
+    pasteAct->setStatusTip(tr("Colar a seleção"));
     connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
 
     aboutAct = new QAction(tr("&Sobre"), this);
