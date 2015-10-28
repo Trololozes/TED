@@ -4,7 +4,7 @@
 - [x] Qt 5.5, lançado em 01/07
 - [x] Criar projeto base
 - [ ] Planejar features
-- [ ] Parar de enrolar e começar a bombar código na parada
+- [x] Parar de enrolar e começar a bombar código na parada
 - [x] Arrumar estruturação do projeto
 - [x] Remover arquivos desnecessarios
 - [x] Criar branch develop (master deve ser sempre compilável e executável)
