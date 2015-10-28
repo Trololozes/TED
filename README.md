@@ -5,10 +5,10 @@
 - [x] Criar projeto base
 - [ ] Planejar features
 - [ ] Parar de enrolar e começar a bombar código na parada
-- [ ] Arrumar estruturação do projeto
+- [x] Arrumar estruturação do projeto
 - [x] Remover arquivos desnecessarios
 - [x] Criar branch develop (master deve ser sempre compilável e executável)
-- [ ] Criar lista de funcionalidades básicas
+- [x] Criar lista de funcionalidades básicas
 - [ ] NÃO começar o desenvolvimento de features adicionais antes de TODAS as features básicas estarem funcionais
 - [x] Adicionar License (LGPL Obrigatória -> Qt Open Source)
 - [x] Adicionar instruções de compilação nas plataformas alvo (win, linux, mac(?))
