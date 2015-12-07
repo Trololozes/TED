@@ -6,6 +6,7 @@
 #include <QShortcut>
 
 #include "notepad.h"
+#include "crypto.h"
 
 class QMenu;
 
@@ -179,7 +180,10 @@ void TextEditor::setCurrentFile(const QString &fileName)
 
 void TextEditor::loadFile(const QString &fileName)
 {
+    char *buffer;
+    crypto::Crypto crypt("12345");
     QFile file(fileName);
+
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("TEDitor"),
                              tr("O TED encontrou problemas para ler o arquivo %1:\n%2.")
@@ -188,11 +192,13 @@ void TextEditor::loadFile(const QString &fileName)
         return;
     }
 
-    QTextStream in(&file);
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    textEdit->setPlainText(in.readAll());
+
+    buffer = file.readAll().data();
+    textEdit->setPlainText(QString(crypt.decrypt(buffer)));
+
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
@@ -202,7 +208,10 @@ void TextEditor::loadFile(const QString &fileName)
 
 bool TextEditor::saveFile(const QString &fileName)
 {
+    char *buffer;
+    crypto::Crypto crypt("12345");
     QFile file(fileName);
+
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("TEDitor"),
                              tr("O TED encontrou problemas para salvar o arquivo %1:\n%2.")
@@ -212,10 +221,15 @@ bool TextEditor::saveFile(const QString &fileName)
     }
 
     QTextStream out(&file);
+
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    out << textEdit->toPlainText();
+
+    buffer = crypt.encrypt(textEdit->toPlainText().toStdString());
+    QByteArray qBuffer(buffer);
+    out << qBuffer;
+
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
