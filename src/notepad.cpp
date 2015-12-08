@@ -91,7 +91,13 @@ void TextEditor::open()
     if (maybeSave()) {
         QString fileName = QFileDialog::getOpenFileName(this);
         if (!fileName.isEmpty())
-            loadFile(fileName);
+        {
+            bool ok;
+            QString passw = QInputDialog::getText(this, tr("Password"),
+                                                  tr("Digite a senha:"), QLineEdit::Password,
+                                                  QString(), &ok);
+            loadFile(fileName, passw);
+        }
     }
 }
 
@@ -100,7 +106,11 @@ bool TextEditor::save()
     if (curFile.isEmpty()) {
         return saveAs();
     } else {
-        return saveFile(curFile);
+        bool ok;
+        QString passw = QInputDialog::getText(this, tr("Password"),
+                                              tr("Digite a senha:"), QLineEdit::Password,
+                                              QString(), &ok);
+        return saveFile(curFile, passw);
     }
 }
 
@@ -115,7 +125,11 @@ bool TextEditor::saveAs()
     else
         return false;
 
-    return saveFile(files.at(0));
+    bool ok;
+    QString passw = QInputDialog::getText(this, tr("Password"),
+                                          tr("Digite a senha:"), QLineEdit::Password,
+                                          QString(), &ok);
+    return saveFile(files.at(0), passw);
 }
 
 void TextEditor::undo()
@@ -178,7 +192,7 @@ void TextEditor::setCurrentFile(const QString &fileName)
     setWindowFilePath(shownName);
 }
 
-void TextEditor::loadFile(const QString &fileName)
+void TextEditor::loadFile(const QString &fileName, const QString &passw)
 {
     char const *buffer;
     crypto::Crypto *crypt = new crypto::Crypto;
@@ -192,7 +206,7 @@ void TextEditor::loadFile(const QString &fileName)
         return;
     }
 
-    crypt->setKey((char*)"12345");
+    crypt->setKey((char*)passw.toStdString().c_str());
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -209,7 +223,7 @@ void TextEditor::loadFile(const QString &fileName)
     delete crypt;
 }
 
-bool TextEditor::saveFile(const QString &fileName)
+bool TextEditor::saveFile(const QString &fileName, const QString &passw)
 {
     char const *inBuffer;
     char *outBuffer;
@@ -225,7 +239,7 @@ bool TextEditor::saveFile(const QString &fileName)
         return false;
     }
 
-    crypt->setKey((char*)"12345");
+    crypt->setKey((char*)passw.toStdString().c_str());
 
     QTextStream out(&file);
 

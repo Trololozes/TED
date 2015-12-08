@@ -45,8 +45,8 @@ private:
     void createMenus();
     bool maybeSave();
     void setCurrentFile(const QString &fileName);
-    void loadFile(const QString &fileName);
-    bool saveFile(const QString &fileName);
+    void loadFile(const QString &fileName, const QString &passw);
+    bool saveFile(const QString &fileName, const QString &passw);
     void readSettings();
     void writeSettings();
 
