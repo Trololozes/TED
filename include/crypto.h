@@ -10,16 +10,22 @@ namespace crypto
     class Crypto
     {
         private:
-            std::string mKey;
-            gcry_cipher_hd_t cipher;
+            char* mKey;
+            char* mBuffer;
+            bool mStatus;
+            gcry_cipher_hd_t mCipher;
 
             bool crypt_init();
-            bool setIniVector(char *iniVector);
+            bool aes_init();
+            void aes_destroy();
 
         public:
-            Crypto(std::string key);
-            char* encrypt(std::string buffer);
-            char* decrypt(char *buffer);
+            Crypto();
+            ~Crypto();
+            char* encrypt(char const *buffer);
+            char* decrypt(char const *buffer);
+            bool status();
+            void setKey(char *key);
 
     };
 }

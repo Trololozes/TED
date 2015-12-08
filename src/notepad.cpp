@@ -180,8 +180,8 @@ void TextEditor::setCurrentFile(const QString &fileName)
 
 void TextEditor::loadFile(const QString &fileName)
 {
-    char *buffer;
-    crypto::Crypto crypt("12345");
+    char const *buffer;
+    crypto::Crypto *crypt = new crypto::Crypto;
     QFile file(fileName);
 
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -192,24 +192,29 @@ void TextEditor::loadFile(const QString &fileName)
         return;
     }
 
+    crypt->setKey((char*)"12345");
+
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
 
     buffer = file.readAll().data();
-    textEdit->setPlainText(QString(crypt.decrypt(buffer)));
+    textEdit->setPlainText(QString(crypt->decrypt(buffer)));
 
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
 
     setCurrentFile(fileName);
+    delete crypt;
 }
 
 bool TextEditor::saveFile(const QString &fileName)
 {
-    char *buffer;
-    crypto::Crypto crypt("12345");
+    char const *inBuffer;
+    char *outBuffer;
+    crypto::Crypto *crypt = new crypto::Crypto;
+
     QFile file(fileName);
 
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -220,14 +225,18 @@ bool TextEditor::saveFile(const QString &fileName)
         return false;
     }
 
+    crypt->setKey((char*)"12345");
+
     QTextStream out(&file);
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
 
-    buffer = crypt.encrypt(textEdit->toPlainText().toStdString());
-    QByteArray qBuffer(buffer);
+    inBuffer = textEdit->toPlainText().toStdString().c_str();
+
+    outBuffer = crypt->encrypt(inBuffer);
+    QByteArray qBuffer(outBuffer);
     out << qBuffer;
 
 #ifndef QT_NO_CURSOR
@@ -235,6 +244,8 @@ bool TextEditor::saveFile(const QString &fileName)
 #endif
 
     setCurrentFile(fileName);
+    delete crypt;
+
     return true;
 }
 
