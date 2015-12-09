@@ -21,6 +21,8 @@ namespace crypto
 
         if( ! mBuffer )
             delete[] mBuffer;
+
+        gcry_control(GCRYCTL_TERM_SECMEM);
     }
 
     bool Crypto::crypt_init()
