@@ -1,5 +1,6 @@
 #include <gcrypt.h>
-#include <string>
+#include <fstream>
+#include <cstdio>
 #include <cstring>
 
 #include "crypto.h"
@@ -7,14 +8,14 @@
 namespace crypto
 {
 
-    Crypto::Crypto()
+    AES::AES()
     {
         mKey = NULL;
         mBuffer = NULL;
         mStatus = crypt_init();
     }
 
-    Crypto::~Crypto()
+    AES::~AES()
     {
         if( ! mKey )
             delete[] mKey;
@@ -25,7 +26,7 @@ namespace crypto
         gcry_control(GCRYCTL_TERM_SECMEM);
     }
 
-    bool Crypto::crypt_init()
+    bool AES::crypt_init()
     {
         gcry_error_t error;
 
@@ -43,7 +44,7 @@ namespace crypto
         return true;
     }
 
-    bool Crypto::aes_init()
+    bool AES::aes_init()
     {
         gcry_error_t error;
         size_t aesKeyLength = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
@@ -76,67 +77,103 @@ namespace crypto
         return true;
     }
 
-    void Crypto::aes_destroy()
+    void AES::aes_destroy()
     {
         gcry_cipher_close(mCipher);
     }
 
-    char* Crypto::encrypt(char const *buffer)
-    {
-        size_t size = std::strlen(buffer) + 1;
-        mBuffer = new char[size];
-
-        if( ! aes_init() )
-        {
-            delete[] mBuffer;
-            return (mBuffer = NULL);
-        }
-
-        gcry_cipher_encrypt(
-            mCipher,
-            mBuffer,
-            size - 1,
-            buffer,
-            size - 1
-        );
-
-        aes_destroy();
-
-        return mBuffer;
-    }
-
-    char* Crypto::decrypt(char const *buffer)
-    {
-        size_t size = std::strlen(buffer) + 1;
-        mBuffer = new char[size];
-
-        if( ! aes_init() )
-        {
-            delete[] mBuffer;
-            return (mBuffer = NULL);
-        }
-
-        gcry_cipher_decrypt(
-            mCipher,
-            mBuffer,
-            size - 1,
-            buffer,
-            size - 1
-        );
-
-        aes_destroy();
-
-        return mBuffer;
-    }
-
-    bool Crypto::status()
+    bool AES::status()
     {
         return mStatus;
     }
 
-    void Crypto::setKey(char *key)
+    void AES::setKey(char const *key)
     {
         mKey = new char[ strlen(key) + 1 ];
         strncpy(mKey, key, strlen(key)+1);
+
+        return;
+    }
+
+    void AES::setBuffer(char const *buffer, size_t size)
+    {
+        mBufSize = size + 1;
+        mBuffer = new char[mBufSize];
+
+        strncpy(mBuffer, buffer, mBufSize);
+
+        return;
+    }
+
+    char* AES::getBuffer()
+    {
+        return mBuffer;
+    }
+
+    bool AES::encrypt()
+    {
+        if( ! aes_init() )
+            return false;
+
+        gcry_cipher_encrypt(
+            mCipher,
+            mBuffer,
+            mBufSize,
+            NULL,
+            0
+        );
+
+        aes_destroy();
+
+        return true;
+    }
+
+    bool AES::decrypt()
+    {
+        if( ! aes_init() )
+            return false;
+
+        gcry_cipher_decrypt(
+            mCipher,
+            mBuffer,
+            mBufSize,
+            NULL,
+            0
+        );
+
+        aes_destroy();
+
+        return true;
+    }
+
+    void AES::saveFile(char const *fileName)
+    {
+        std::ofstream file;
+
+        file.open(fileName, std::ios::binary);
+
+        file.write(mBuffer, mBufSize);
+
+        file.close();
+
+        return;
+    }
+
+    void AES::readFile(char const *fileName)
+    {
+        std::ifstream file;
+
+        file.open(fileName, std::ios::binary);
+
+        file.seekg(0, file.end);
+        mBufSize = file.tellg();
+        file.seekg(0, file.beg);
+
+        mBuffer = new char[mBufSize];
+        file.read(mBuffer, mBufSize);
+
+        file.close();
+
+        return;
     }
 }

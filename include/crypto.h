@@ -2,31 +2,35 @@
 #define CRYPTO_H
 
 #include <gcrypt.h>
-#include <string>
 
 namespace crypto
 {
 
-    class Crypto
+    class AES
     {
         private:
             char* mKey;
             char* mBuffer;
+            size_t mBufSize;
             bool mStatus;
             gcry_cipher_hd_t mCipher;
 
+        private:
             bool crypt_init();
             bool aes_init();
             void aes_destroy();
 
         public:
-            Crypto();
-            ~Crypto();
-            char* encrypt(char const *buffer);
-            char* decrypt(char const *buffer);
+            AES();
+            ~AES();
             bool status();
-            void setKey(char *key);
-
+            void setKey(char const *key);
+            void setBuffer(char const *buffer, size_t size);
+            char* getBuffer();
+            bool encrypt();
+            bool decrypt();
+            void saveFile(char const *fileName);
+            void readFile(char const *fileName);
     };
 }
 #endif
