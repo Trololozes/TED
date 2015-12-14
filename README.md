@@ -3,7 +3,7 @@
 ##Todo
 - [x] Qt 5.5, lançado em 01/07
 - [x] Criar projeto base
-- [ ] Planejar features
+- [x] Planejar features
 - [x] Parar de enrolar e começar a bombar código na parada
 - [x] Arrumar estruturação do projeto
 - [x] Remover arquivos desnecessarios
@@ -20,6 +20,7 @@
 
 Para compilar certifique-se de ter:
 - Qt 5.5
+- libgcrypt
 - GNU make
 - GCC (g++)
 
