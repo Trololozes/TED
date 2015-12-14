@@ -1,0 +1,8 @@
+obj/
+bin/
+release/
+debug/
+Makefile*
+
+.vimrc
+*.swp
