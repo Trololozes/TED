@@ -13,5 +13,7 @@ OBJECTS_DIR += ./obj
 
 # Input
 VPATH += ./src ./include
-HEADERS += notepad.h
-SOURCES += main.cpp notepad.cpp
+HEADERS += notepad.h crypto.h
+SOURCES += main.cpp notepad.cpp crypto.cpp
+
+LIBS += -lgcrypt

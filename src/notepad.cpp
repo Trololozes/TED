@@ -6,6 +6,7 @@
 #include <QShortcut>
 
 #include "notepad.h"
+#include "crypto.h"
 
 class QMenu;
 
@@ -85,12 +86,40 @@ void TextEditor::newFile()
     }
 }
 
+QString TextEditor::getPassw()
+{
+    bool ok;
+    QString passw = QInputDialog::getText(
+        this,
+        tr("Password"),
+        tr("Digite a senha:"),
+        QLineEdit::Password,
+        QString(),
+        &ok
+    );
+
+    return passw;
+}
+
 void TextEditor::open()
 {
     if (maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(this);
-        if (!fileName.isEmpty())
-            loadFile(fileName);
+        QString fileName = QFileDialog::getOpenFileName(
+                            this,
+                            tr("Open File"),
+                            QString(),
+                            "TED File (*.ted);;Text File (*.txt);;All Files (*.*)",
+                            0,
+                            0
+                           );
+        if (!fileName.isEmpty()) {
+            QString passw = getPassw();
+
+            if( passw.isEmpty() )
+                loadFile(fileName);
+            else
+                loadFile(fileName, passw);
+        }
     }
 }
 
@@ -99,22 +128,37 @@ bool TextEditor::save()
     if (curFile.isEmpty()) {
         return saveAs();
     } else {
-        return saveFile(curFile);
+        QString passw = getPassw();
+
+        if( passw.isEmpty() )
+            return saveFile(curFile);
+
+        return saveFile(curFile, passw);
     }
 }
 
 bool TextEditor::saveAs()
 {
-    QFileDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    QStringList files;
-    if (dialog.exec())
-        files = dialog.selectedFiles();
-    else
+    QString fileName = QFileDialog::getSaveFileName(
+                        this,
+                        tr("Save File"),
+                        QString(),
+                        "TED File (*.ted);;Text File (*.txt);;All Files (*.*)",
+                        0,
+                        0
+                       );
+    if( fileName.isEmpty() )
         return false;
 
-    return saveFile(files.at(0));
+    QFileInfo file(fileName);
+    if( file.suffix().isEmpty() )
+        fileName += ".ted";
+
+    QString passw = getPassw();
+    if( passw.isEmpty() )
+        return saveFile(fileName);
+
+    return saveFile(fileName, passw);
 }
 
 void TextEditor::undo()
@@ -180,7 +224,8 @@ void TextEditor::setCurrentFile(const QString &fileName)
 void TextEditor::loadFile(const QString &fileName)
 {
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+
+    if ( ! file.open(QFile::ReadOnly | QFile::Text) ) {
         QMessageBox::warning(this, tr("TEDitor"),
                              tr("O TED encontrou problemas para ler o arquivo %1:\n%2.")
                              .arg(fileName)
@@ -189,10 +234,13 @@ void TextEditor::loadFile(const QString &fileName)
     }
 
     QTextStream in(&file);
+
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
+
     textEdit->setPlainText(in.readAll());
+
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
@@ -200,10 +248,25 @@ void TextEditor::loadFile(const QString &fileName)
     setCurrentFile(fileName);
 }
 
+void TextEditor::loadFile(const QString &fileName, const QString &passw)
+{
+    char *buffer;
+    crypto::AES crypt;
+
+    crypt.setKey(passw.toStdString().c_str());
+    crypt.readFile(fileName.toStdString().c_str());
+    crypt.decrypt();
+    buffer = crypt.getBuffer();
+
+    textEdit->setPlainText(QString(buffer));
+    setCurrentFile(fileName);
+}
+
 bool TextEditor::saveFile(const QString &fileName)
 {
     QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+
+    if ( ! file.open(QFile::WriteOnly | QFile::Text) ) {
         QMessageBox::warning(this, tr("TEDitor"),
                              tr("O TED encontrou problemas para salvar o arquivo %1:\n%2.")
                              .arg(fileName)
@@ -212,13 +275,34 @@ bool TextEditor::saveFile(const QString &fileName)
     }
 
     QTextStream out(&file);
+
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
+
     out << textEdit->toPlainText();
+
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
+
+    setCurrentFile(fileName);
+
+    return true;
+}
+
+bool TextEditor::saveFile(const QString &fileName, const QString &passw)
+{
+    QString buffer;
+    crypto::AES crypt;
+
+    crypt.setKey(passw.toStdString().c_str());
+    buffer = textEdit->toPlainText();
+    crypt.setBuffer(buffer.toStdString().c_str(), buffer.toStdString().size());
+    if( ! crypt.encrypt() )
+        return false;
+
+    crypt.saveFile(fileName.toStdString().c_str());
 
     setCurrentFile(fileName);
     return true;
