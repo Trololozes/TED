@@ -104,7 +104,14 @@ QString TextEditor::getPassw()
 void TextEditor::open()
 {
     if (maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(this);
+        QString fileName = QFileDialog::getOpenFileName(
+                            this,
+                            tr("Open File"),
+                            QString(),
+                            "TED File (*.ted);;Text File (*.txt);;All Files (*.*)",
+                            0,
+                            0
+                           );
         if (!fileName.isEmpty()) {
             QString passw = getPassw();
 
@@ -132,21 +139,26 @@ bool TextEditor::save()
 
 bool TextEditor::saveAs()
 {
-    QFileDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    QStringList files;
-    if (dialog.exec())
-        files = dialog.selectedFiles();
-    else
+    QString fileName = QFileDialog::getSaveFileName(
+                        this,
+                        tr("Save File"),
+                        QString(),
+                        "TED File (*.ted);;Text File (*.txt);;All Files (*.*)",
+                        0,
+                        0
+                       );
+    if( fileName.isEmpty() )
         return false;
 
+    QFileInfo file(fileName);
+    if( file.suffix().isEmpty() )
+        fileName += ".ted";
+
     QString passw = getPassw();
-
     if( passw.isEmpty() )
-        return saveFile(files.at(0));
+        return saveFile(fileName);
 
-    return saveFile(files.at(0), passw);
+    return saveFile(fileName, passw);
 }
 
 void TextEditor::undo()
