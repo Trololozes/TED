@@ -205,9 +205,18 @@ void TextEditor::paste()
 
 void TextEditor::about()
 {
-    QMessageBox::about(this, tr("About"),
-            tr("TEDitor v0.0.1 \n"
-               "desenvolvido por Trololozes."));
+    QMessageBox about(this);
+
+    about.setWindowTitle(tr("About"));
+    about.setText(tr("TEDitor"));
+    about.setInformativeText(tr("Editor de texto com segurança criptográfica\n"
+                                "\n"));
+    about.setDetailedText(tr("Créditos:\n"
+                             "Carlos Millett,\n"
+                             "Miguel Nunes,\n"
+                             "Pierluigi Lazzari."));
+
+    about.exec();
 }
 
 bool TextEditor::maybeSave()
