@@ -280,8 +280,14 @@ void TextEditor::loadFile(const QString &fileName, const QString &passw)
     crypto::AES crypt;
 
     crypt.setKey(passw.toStdString().c_str());
-    crypt.readFile(fileName.toStdString().c_str());
-    crypt.decrypt();
+    if( ! ( crypt.readFile(fileName.toStdString().c_str()) && crypt.decrypt() ) )
+    {
+        QMessageBox::warning(this, tr("TEDitor"),
+                             tr("O TED encontrou problemas para ler o arquivo %1:\n.")
+                             .arg(fileName));
+        return;
+    }
+
     buffer = crypt.getBuffer();
 
     textEdit->setPlainText(QString(buffer));
@@ -325,10 +331,13 @@ bool TextEditor::saveFile(const QString &fileName, const QString &passw)
     crypt.setKey(passw.toStdString().c_str());
     buffer = textEdit->toPlainText();
     crypt.setBuffer(buffer.toStdString().c_str(), buffer.toStdString().size());
-    if( ! crypt.encrypt() )
+    if( ! ( crypt.encrypt() && crypt.saveFile(fileName.toStdString().c_str()) ) )
+    {
+        QMessageBox::warning(this, tr("TEDitor"),
+                             tr("O TED encontrou problemas para salvar o arquivo %1:\n.")
+                             .arg(fileName));
         return false;
-
-    crypt.saveFile(fileName.toStdString().c_str());
+    }
 
     setCurrentFile(fileName);
     return true;

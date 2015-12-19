@@ -46,8 +46,8 @@ namespace crypto
             char* getBuffer();
             bool encrypt();
             bool decrypt();
-            void saveFile(char const *fileName);
-            void readFile(char const *fileName);
+            bool saveFile(char const *fileName);
+            bool readFile(char const *fileName);
     };
 }
 #endif

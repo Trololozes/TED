@@ -163,24 +163,28 @@ namespace crypto
         return true;
     }
 
-    void AES::saveFile(char const *fileName)
+    bool AES::saveFile(char const *fileName)
     {
         std::ofstream file;
 
         file.open(fileName, std::ios::binary);
+        if( ! file.is_open() )
+            return false;
 
         file.write(mBuffer, mBufSize);
 
         file.close();
 
-        return;
+        return true;
     }
 
-    void AES::readFile(char const *fileName)
+    bool AES::readFile(char const *fileName)
     {
         std::ifstream file;
 
         file.open(fileName, std::ios::binary);
+        if( ! file.is_open() )
+            return false;
 
         file.seekg(0, file.end);
         mBufSize = file.tellg();
@@ -191,6 +195,6 @@ namespace crypto
 
         file.close();
 
-        return;
+        return true;
     }
 }
