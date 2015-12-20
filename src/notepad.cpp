@@ -109,7 +109,8 @@ QString TextEditor::getPassw()
     QString passw = QInputDialog::getText(
         this,
         tr("Password"),
-        tr("Digite a senha:"),
+        tr("Digite a senha:\n"
+           "Para não usar criptografia, deixe em branco."),
         QLineEdit::Password,
         QString(),
         &ok
