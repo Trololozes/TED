@@ -1,4 +1,4 @@
-# TED - Text EDitor
+## TED - Text EDitor
 
 __Um software de edição de texto com segurança criptográfica.__
 
