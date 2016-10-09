@@ -28,14 +28,10 @@ class QMenu;
 
 TextEditor::TextEditor( QWidget *parent ) : QMainWindow( parent )
 {
-
     QVBoxLayout *layout = new QVBoxLayout();
 
     textEdit = new QPlainTextEdit(this);
     setCentralWidget( textEdit );
-
-    // QWidget *topFiller = new QWidget;
-    // topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     createActions();
     createMenus();
@@ -49,7 +45,6 @@ TextEditor::TextEditor( QWidget *parent ) : QMainWindow( parent )
     setCurrentFile("");
 
     layout->setMargin(0);
-
 }
 
 void TextEditor::contextMenuEvent(QContextMenuEvent *event)
@@ -63,7 +58,7 @@ void TextEditor::contextMenuEvent(QContextMenuEvent *event)
 
 void TextEditor::closeEvent(QCloseEvent *event)
 {
-    if (maybeSave()) {
+    if ( maybeSave() ) {
         writeSettings();
         event->accept();
     } else {
@@ -94,7 +89,7 @@ void TextEditor::writeSettings()
 
 void TextEditor::newFile()
 {
-    if (maybeSave()) {
+    if ( maybeSave() ) {
         textEdit->clear();
         setCurrentFile("");
     }
@@ -118,7 +113,7 @@ QString TextEditor::getPassw()
 
 void TextEditor::open()
 {
-    if (maybeSave()) {
+    if ( maybeSave() ) {
         QString fileName = QFileDialog::getOpenFileName(
                             this,
                             tr("Open File"),
@@ -127,7 +122,7 @@ void TextEditor::open()
                             0,
                             0
                            );
-        if (!fileName.isEmpty()) {
+        if ( ! fileName.isEmpty() ) {
             QString passw = getPassw();
 
             if( passw.isEmpty() )
@@ -140,7 +135,7 @@ void TextEditor::open()
 
 bool TextEditor::save()
 {
-    if (curFile.isEmpty()) {
+    if ( curFile.isEmpty() ) {
         return saveAs();
     } else {
         QString passw = getPassw();
@@ -211,7 +206,6 @@ void TextEditor::about()
                                 "\n"));
     about.setDetailedText(tr("Créditos:\n"
                              "Carlos Millett,\n"
-                             "Miguel Nunes,\n"
                              "Pierluigi Lazzari."));
 
     about.exec();
@@ -219,15 +213,15 @@ void TextEditor::about()
 
 bool TextEditor::maybeSave()
 {
-    if (textEdit->document()->isModified()) {
+    if ( textEdit->document()->isModified() ) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(this, tr("TEDitor"),
                      tr("O documento foi modificado.\n"
                         "Deseja salvar suas alterações?"),
                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        if (ret == QMessageBox::Save)
+        if ( ret == QMessageBox::Save )
             return save();
-        else if (ret == QMessageBox::Cancel)
+        else if ( ret == QMessageBox::Cancel )
             return false;
     }
     return true;
